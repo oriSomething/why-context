@@ -1,0 +1,49 @@
+name: Build and Deploy
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2.3.1
+
+      - name: Build contextual-state/react 🔧
+        run: |
+          cd contextual-state/react
+          yarn
+          yarn run build --base=/why-context/contextual-state-react/
+          cd ../..
+
+      - name: Build keyboard-management/react 🔧
+        run: |
+          cd keyboard-management/react
+          yarn
+          yarn run build --base=/why-context/keyboard-management-react/
+          cd ../..
+
+      - name: Build keyboard-management/vue 🔧
+        run: |
+          cd keyboard-management/vue
+          yarn
+          yarn run build --base=/why-context/keyboard-management-vue/
+          cd ../..
+
+      - name: Prapare to deploy 🔧
+        run: |
+          mkdir dist
+          cd dist
+          touch index.html
+          mv ../contextual-state/react/dist ./contextual-state-react
+          mv ../keyboard-management/react/dist ./keyboard-management-react
+          mv ../keyboard-management/vue/dist ./keyboard-management-vue
+          cd ..
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@4.1.1
+        with:
+          branch: gh-pages
+          folder: dist 
